@@ -21,6 +21,7 @@ import cse250.objects.{Empty, Node, Tree}
 import javax.swing.tree.TreeNode
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 
 object TreeUtilities {
@@ -36,6 +37,7 @@ object TreeUtilities {
         node
       }
     }
+
     if(heapArray.nonEmpty){
       val root: Node[A] = new Node[A](heapArray(0),
         linkage(heapArray, 1),
@@ -48,11 +50,43 @@ object TreeUtilities {
   }
 
   def flattenHeapTreeToHeapArray[A: ClassTag](root: Tree[A]): Array[A] = {
-    Array()
+    val toExplore: mutable.Queue[Tree[A]] = mutable.Queue()
+    toExplore.enqueue(root)
+    var arr: ArrayBuffer[A] = new ArrayBuffer[A]()
+    while(toExplore.nonEmpty){
+      val nodeToExplore: Tree[A] = toExplore.dequeue()
+      arr.addOne(nodeToExplore.value.get)
+      val left = nodeToExplore.left
+      val right = nodeToExplore.right
+      if(left.get != Empty)
+        toExplore.enqueue(left.get)
+      if(right.get !=  Empty)
+        toExplore.enqueue(right.get)
+    }
+    arr.toArray
   }
 
+
   def isValidBinaryHeap[A](root: Tree[A])(implicit comp: Ordering[A]): Boolean = {
-    false
+    val parent: Tree[A] = root
+    val leftChild: Tree[A] = parent.left.get
+    val rightChild: Tree[A] = parent.right.get
+    if (leftChild == Empty && rightChild == Empty){
+      true
+    } else if(rightChild != Empty){
+      var compBool: Boolean = false
+      var compInt: Int = comp.compare(parent.value.get, leftChild.value.get)
+      if(compInt >= 0){
+        compBool = true
+      }
+      compBool
+
+    }else{
+      if(comp.compare(parent.value.get, leftChild.value.get) >= 0){
+
+      }
+    }
+
   }
 
   def applyTree[A](root: Tree[A], index: Int): Option[A] = {
